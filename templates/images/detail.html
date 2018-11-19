@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ image.title }}
+{% endblock %}
+{% block content %}
+    <h1>{{ image.title }}</h1>
+    {% load thumbnail %}
+    {% thumbnail image.image "300" as im %}
+    <a href="{{ image.image.url }}">
+    <img src="{{ im.url }}"class="image-detail" alt="">
+    </a>
+    {% endthumbnail %}
+    {% with total_like=image.user_like.count user_like=image.user_like.all %}
+        <div class="image-info">
+            <div>
+                <span class="count">
+                    <em>{{ total_like }}</em>人喜欢
+                </span>
+                <a href="#" data-id="{{ image.id }}" data-action="{% if request.user in user_like %}un
+                {% endif %}like" class="like button">
+                    {% if request.user not in user_like %}
+                        喜欢
+                    {% else %}
+                        不喜欢
+                    {% endif %}
+                </a>
+                    {{ image.description|linebreaks }}
+            </div>
+        </div>
+        <div class="image-likes">
+            {% for user in image.user_like.all %}
+            <div>
+                <img src="{{ user.profile.photo.url }}" alt="">
+                <p>{{ user.username }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    {% endwith %}
+{% endblock %}
+
+{#e.preventDefault 阻止a标签的默认功能，就是阻止打开新的连接#}
+{% block domready %}
+    $("a.like").click(function(e){
+        e.preventDefault();
+        $.post('{% url "images:like" %}',
+            {
+            id:$(this).data("id"),
+            action:$(this).data("action"),
+            },
+            function(data){
+                if(data["status"]==="ok"){
+                        let previous_action = $('a.like').data("action");
+                        //切换data-action的属性
+                        $("a.like").data("action",previous_action==="like"?"unlike":"like");
+                        //切换按钮的文本
+                        $("a.like").text(previous_action==="like"?"不喜欢":"喜欢");
+                        //更新总的喜欢人数
+                        let previous_like = parseInt($("em").text());
+                        $("em").text(previous_action==="like"?previous_like + 1:previous_like-1);
+                    }
+        }
+    );
+    });
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% block title %}
+图片列表
+{% endblock %}
+
+{% block content %}
+    <h1>图片列表</h1>
+    <div id="image-list">
+    {% for image in images %}
+    <div class="image">
+        <a href="{{ image.get_absolute_url }}">
+            {% thumbnail image.image "300x300" crop="100%" as im %}
+            <img src="{{ im.url }}" alt="">
+            {% endthumbnail %}
+        </a>
+
+        <div class="info">
+            <a href="{{ image.get_absolute_url }}" class="title">
+                {{ image.title }}
+            </a>
+        </div>
+        </div>
+    {% endfor %}
+    </div>
+
+{% endblock %}

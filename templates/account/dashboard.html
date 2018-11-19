@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}
+控制面板
+{% endblock %}
+{% block content %}
+<h1>控制面板</h1>
+    <p>欢迎来到你的控制面板</p>
+    {% with total_images_created=request.user.image_created.count %}
+        你有{{ total_images_created }}张图片
+    {% endwith %}
+    <p>请把书签小程序拖动到书签栏使用：<a href="javascript:{% include 'bookmarklet_launcher.js' %}" class="button">放入书签</a></p>
+    <p>你可以编辑你的 <a href="{% url 'edit' %}">个人信息</a></p>
+    <p><a href="{% url 'password_change' %}">修改密码</a></p>
+    <h2>用户都发生了什么：</h2>
+    <div id="action_list">
+        {% for action in actions %}
+            {% include 'account/action_detail.html' %}
+        {% endfor %}
+
+    </div>
+{% endblock %}

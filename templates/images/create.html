@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}
+分享图片
+{% endblock %}
+
+{% block content %}
+
+    <h1>图片</h1>
+
+    <img src="{{ request.GET.url }}" class="image-preview" alt="">
+    <form action="" method="post">
+    {{ form.as_p }}
+    {% csrf_token %}
+        <input type="submit" value="分享图片">
+    </form>
+{% endblock %}

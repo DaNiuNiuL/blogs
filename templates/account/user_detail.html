@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% block title %}
+    用户详情
+{% endblock %}
+{% block content %}
+<h1>{{ user.username }}</h1>
+    <div class="profile-info">
+        {% thumbnail user.profile.photo "150x150" crop="100%" as im %}
+            <img src="{{ im.url }}" alt="" class="user-detail">
+        {% endthumbnail %}
+    </div>
+    <h1>{{ user.date_joined }}</h1>
+    <span class="count">
+        <span class="total">
+            <em>{{ total_followers }}</em>个关注
+        </span>
+    </span>
+    <a href="#" class="follow button" data-id="{{ user.id }}" data-action="{% if request.user in followers %}un{% endif %}follow">
+    {% if request.user not in followers %}
+    关注
+        {% else %}
+        取消关注
+    {% endif %}
+    </a>
+    <div id="image-list" class="image-container">
+        {% for follower in followers %}
+            <img src="{{ follower.profile.photo.url }}" alt="">
+        {% endfor %}
+        
+    </div>
+{% endblock %}
+{% block domready %}
+    $("a.follow").click(function(e){
+        e.preventDefault();
+        $.post('{% url "user_follow" %}',
+            {
+            id:$(this).data("id"),
+            action:$(this).data("action"),
+            },
+            function(data){
+                if(data["status"]==="ok"){
+                        let previous_action = $('a.follow').data("action");
+                        //切换data-action的属性
+                        $("a.follow").data("action",previous_action==="follow"?"unfollow":"follow");
+                        //切换按钮的文本
+                        $("a.follow").text(previous_action==="follow"?"取消关注":"关注");
+                        //更新总的喜欢人数
+                        let previous_follows = parseInt($("em").text());
+                        $("em").text(previous_action==="follow"?previous_follows + 1:previous_follows-1);
+                    }
+        }
+    );
+    });
+{% endblock %}
